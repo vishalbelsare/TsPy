@@ -11,9 +11,8 @@ if __name__ == '__main__':
     N = 5000 + window
 
     ts = pd.DataFrame.from_csv('./data/in/SPY.csv', header=0, index_col=0, parse_dates=True)['Adj Close']
-    #ts = gn.randomWalk(N=10000)
+    
     _ticker = 'AAPL.OQ'
-    #ts = pd.DataFrame.from_csv('./data/in/spx_vols_1.0_1M_2010-01-04_2017-04-10.csv', header=0, index_col=0, parse_dates=True)[_ticker].dropna()
     _split_index = int( len(ts) * 0.6 )
     ts_train, ts_test = ts.iloc[:_split_index], ts.iloc[_split_index:]
 
