@@ -4,8 +4,7 @@ matplotlib
 seaborn
 sklearn
 tensorflow
-keras
 ipython
 jupyter
 statsmodels
-pytest
+pandas-datareader
