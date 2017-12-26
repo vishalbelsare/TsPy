@@ -4,34 +4,8 @@ from __future__ import division
 # scientific computing
 import numpy as np
 import tensorflow as tf
-import pandas as pd
 
 import tspy
-
-
-def AR_Data(ticker, window, batch_size=1):
-    """Autoregressive data generator.
-
-    Parameters
-    ----------
-    ticker: str
-        Ticker name
-    window: int
-        Window size
-    batch_size: int
-        Number of elements per batch
-
-    Returns
-    -------
-    dataset: tf.data.Dataset
-        Tensorflow Dataset
-    """
-    series = tspy.adapters.Finance.Prices([ticker])[ticker]
-    X, y = Xy(series, window)
-    _dataset = tf.data.Dataset.from_tensor_slices((X, y))
-    dataset = _dataset.batch(batch_size)
-    iterator = dataset.make_one_shot_iterator()
-    return dataset, iterator
 
 
 def rolling(series, window):
@@ -77,3 +51,26 @@ def Xy(series, window):
     X = raw[:, :-1]
     y = raw[:, -1]
     return X, y
+
+
+def tf_Xy(ticker, window, batch_size=1):
+    """`tf.data.Dataset` supervised data format
+
+    Parameters
+    ----------
+    ticker: str
+        Ticker name
+    window: int
+        Window size
+    batch_size: int
+        Number of elements per batch
+
+    Returns
+    -------
+    dataset: tf.data.Dataset
+        Tensorflow Dataset
+    """
+    _dataset = tf.data.Dataset.from_tensor_slices(FinanceXy(ticker, window))
+    dataset = _dataset.batch(batch_size)
+    iterator = dataset.make_one_shot_iterator()
+    return dataset, iterator

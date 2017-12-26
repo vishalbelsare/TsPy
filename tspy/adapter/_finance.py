@@ -11,14 +11,11 @@ import pandas_datareader.data as web
 
 class Finance:
     """Market Data Wrapper."""
-    start_date = None
-    end_date = None
-    source = 'quandl'
     _close_col = {'quandl': 'Close', 'yahoo': 'Adj Close'}
 
     @classmethod
     def _get(cls, ticker, **kwargs):
-        """Helpder method for `web.DataReader`.
+        """Helper method for `web.DataReader`.
         Parameters
         ----------
         ticker: str
@@ -30,10 +27,10 @@ class Finance:
         df: pandas.DataFrame
             Table of prices for `ticker`
         """
-        return web.DataReader(ticker, cls.source, **kwargs)
+        return web.DataReader(ticker, **kwargs)
 
     @classmethod
-    def Returns(cls, tickers):
+    def Returns(cls, tickers, start_date=None, end_date=None, source='quandl'):
         """Get daily returns for `tickers`.
         Parameters
         ----------
@@ -44,10 +41,10 @@ class Finance:
         df: pandas.DataFrame
             Table of Returns of Adjusted Close prices for `tickers`
         """
-        return cls.Prices(tickers).pct_change()[1:]
+        return cls.Prices(tickers, start_date, end_date, source).pct_change()[1:]
 
     @classmethod
-    def Prices(cls, tickers):
+    def Prices(cls, tickers, start_date=None, end_date=None, source='quandl'):
         """Get daily prices for `tickers`.
         Parameters
         ----------
@@ -55,8 +52,11 @@ class Finance:
             List of ticker names
         Returns
         -------
-        df: pandas.DataFrame
+        df: pandas.DataFrame | pandas.Series
             Table of Adjusted Close prices for `tickers`
         """
-        return pd.DataFrame.from_dict({ticker: cls._get(ticker, start=cls.start_date,
-                                                        end=cls.end_date)[cls._close_col[cls.source]] for ticker in tickers})
+        df = pd.DataFrame.from_dict({ticker: cls._get(ticker, data_source=sourcee, start=start_date,
+                                                      end=end_date)[cls._close_col[source]] for ticker in tickers})
+        if len(df.columns) == 1:
+            df = df[df.columns[0]]
+        return df
