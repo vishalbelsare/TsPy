@@ -55,7 +55,7 @@ class Finance:
         df: pandas.DataFrame | pandas.Series
             Table of Adjusted Close prices for `tickers`
         """
-        df = pd.DataFrame.from_dict({ticker: cls._get(ticker, data_source=sourcee, start=start_date,
+        df = pd.DataFrame.from_dict({ticker: cls._get(ticker, data_source=source, start=start_date,
                                                       end=end_date)[cls._close_col[source]] for ticker in tickers})
         if len(df.columns) == 1:
             df = df[df.columns[0]]
