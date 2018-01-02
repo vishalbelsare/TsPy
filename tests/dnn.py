@@ -8,7 +8,7 @@ import numpy as np
 import tspy
 
 
-class TestSetup(unittest.TestCase):
+class TestDNN(unittest.TestCase):
 
     NUM_POINTS = 500
     WINDOW = 10

@@ -6,36 +6,7 @@ import numpy as np
 import tensorflow as tf
 
 from tspy.model import _Model
-
-
-class DNNState:
-    """Deep Neural Network Model State."""
-
-    def __init__(self, window):
-        """Constructs a `DNNState` instance.
-
-        Parameters
-        ----------
-        window: int
-            Window size
-        """
-        if not isinstance(window, int):
-            raise TypeError('type(window)=%s!=int' % type(window))
-        self.window = window
-        self._history = np.array([float()] * window)
-
-    @property
-    def history(self):
-        return self._history
-
-    @history.setter
-    def history(self, array):
-        if not isinstance(array, np.ndarray):
-            array = np.array(array).ravel()
-        if len(array) != self.window:
-            raise ValueError('%d=len(history)!=self.window=%d' %
-                             (len(array), self.window))
-        self._history = array.reshape(1, self.window)
+from tspy.model.ar._state import ARState
 
 
 class DNN(_Model):
@@ -56,7 +27,7 @@ class DNN(_Model):
             Model name
         """
         super(DNN, self).__init__(name)
-        self.state = DNNState(window)
+        self.state = ARState(window)
 
         self.model = tf.estimator.DNNRegressor(
             hidden_units=hidden_units,
@@ -102,11 +73,6 @@ class DNN(_Model):
             Target vector
         num_epochs: int
             Number of epochs
-
-        Returns
-        -------
-        model: DNN
-            Fitted model
         """
         self.model.train(self._input_fn(X, y, num_epochs),
                          steps=int(num_epochs / 10))
