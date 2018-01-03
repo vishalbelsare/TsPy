@@ -10,16 +10,14 @@ from sklearn.linear_model import ElasticNet
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.ensemble import AdaBoostRegressor
 
-from tspy.model import _Model
-from tspy.model.ar._state import ARState
+from tspy.model.ar._base import _ARModel
 
 
-class Regressor(_Model):
-    """`scikit-learn` regressors wrapper class`
-    """
+class SKReg(_ARModel):
+    """`scikit-learn` regressors wrapper class`."""
 
-    def __init__(self, regressor_type, window, name='Regressor', **regressor_kwargs):
-        """Constructs a `Regressor` instance.
+    def __init__(self, regressor_type, window, name='sklearn', **regressor_kwargs):
+        """Constructs a `SKReg` instance.
 
         Parameters
         ----------
@@ -32,8 +30,7 @@ class Regressor(_Model):
         regressor_kwargs: dict
             Arguments of `scikit-learn` regressor
         """
-        super(Regressor, self).__init__(name)
-        self.state = ARState(window)
+        super(SKReg, self).__init__(window, name)
 
         self.model = self._parse_regressor(regressor_type, **regressor_kwargs)
 
@@ -71,10 +68,6 @@ class Regressor(_Model):
         """
         self.model.fit(X, y)
 
-    def _set_state(self, X, y):
-        print('yo')
-        self.state.history = np.append(X[-1, :-1], y[-1])
-
     def _predict(self, X):
         """Predict method.
 
@@ -106,9 +99,3 @@ class Regressor(_Model):
             Mean squared error loss
         """
         return self.model.score(X, y)
-
-    def next(self, steps=1):
-        _next = []
-        for i in range(steps):
-            _next.append(self.predict(self.state.history))
-        return np.array(_next).reshape(steps, 1)

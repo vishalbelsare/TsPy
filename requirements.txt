@@ -6,5 +6,6 @@ sklearn
 tensorflow
 ipython
 jupyter
+ptpython
 statsmodels
 pandas-datareader

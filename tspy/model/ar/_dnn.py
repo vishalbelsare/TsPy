@@ -5,11 +5,10 @@ from __future__ import division
 import numpy as np
 import tensorflow as tf
 
-from tspy.model import _Model
-from tspy.model.ar._state import ARState
+from tspy.model.ar._base import _ARModel
 
 
-class DNN(_Model):
+class DNN(_ARModel):
     """Deep Neural Network
     based on `tf.estimator.DNNRegressor`
     """
@@ -26,8 +25,7 @@ class DNN(_Model):
         name: str
             Model name
         """
-        super(DNN, self).__init__(name)
-        self.state = ARState(window)
+        super(DNN, self).__init__(window, name)
 
         self.model = tf.estimator.DNNRegressor(
             hidden_units=hidden_units,
@@ -77,9 +75,6 @@ class DNN(_Model):
         self.model.train(self._input_fn(X, y, num_epochs),
                          steps=int(num_epochs / 10))
 
-    def _set_state(self, X, y, num_epochs=None):
-        self.state.history = np.append(X[-1, :-1], y[-1])
-
     def _predict(self, X):
         """Predict method.
 
@@ -110,10 +105,4 @@ class DNN(_Model):
         loss: float
             Mean squared error loss
         """
-        return self.model.evaluate(self._input_fn(X, y, 1), steps=None)['loss']
-
-    def next(self, steps=1):
-        _next = []
-        for i in range(steps):
-            _next.append(self.predict(self.state.history))
-        return np.array(_next).reshape(steps, 1)
+        return float(self.model.evaluate(self._input_fn(X, y, 1), steps=None)['loss'])

@@ -7,8 +7,32 @@ import pandas as pd
 
 
 class _Model:
+    """Base model class.
+
+    API
+    ---
+    _fit: self
+        Fit model method
+    _after_fit: NoneType <optional>
+        Method called after `fit`
+    _predict: numpy.ndarray
+        Predict method
+    _after_predict: NoneType <optional>
+        Method called after `predict`
+    _score: float
+        Model evaluation method
+    next: numpy.ndarray
+        Predictions based on `state`
+    """
 
     def __init__(self, name=None):
+        """Constructs a `_Model` instance.
+
+        Parameters
+        ----------
+        name: str
+            Model name
+        """
         self.name = name
         self._fitted = False
 
@@ -24,16 +48,21 @@ class _Model:
 
         Returns
         -------
-        model: DNN
+        model: self
             Fitted model
         """
         self._fit(X, y, **kwargs)
         self._fitted = True
-        if callable(getattr(self, '_set_state', None)):
-            self._set_state(X, y, **kwargs)
+        try:
+            self._after_fit(X, y)
+        except NotImplementedError:
+            print('%s: <optional> `_after_fit` not implemented' % self)
         return self
 
     def _fit(self, X, y, **kwargs):
+        raise NotImplementedError
+
+    def _after_fit(self, X, y, **kwargs):
         raise NotImplementedError
 
     def predict(self, X):
@@ -58,11 +87,16 @@ class _Model:
             raise AssertionError('`predict` called on an unfitted model')
         else:
             y_hat = self._predict(X)
-            if callable(getattr(self, '_set_state', None)):
-                self._set_state(X, y_hat)
+            try:
+                self._after_predict(X, y_hat)
+            except NotImplementedError:
+                print('%s: <optional> `_after_predict` not implemented' % self)
             return y_hat
 
     def _predict(self, X):
+        raise NotImplementedError
+
+    def _after_predict(self, X, y_hat):
         raise NotImplementedError
 
     def score(self, X, y):

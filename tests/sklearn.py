@@ -8,22 +8,19 @@ import numpy as np
 import tspy
 
 
-class TestDNN(unittest.TestCase):
+class TestSKReg(unittest.TestCase):
 
     NUM_POINTS = 500
     WINDOW = 10
-    NAME = 'dnn'
-
-    HIDDEN_UNITS = [50]
-    NUM_EPOCHS = 5000
+    NAME = 'sklearn'
 
     ts = np.sin(np.linspace(-2 * np.pi, 2 * np.pi, NUM_POINTS))
     X_train, y_train = tspy.data.ar.Xy(ts, WINDOW)
-    reg = tspy.model.ar.DNN(
-        hidden_units=HIDDEN_UNITS,
+    reg = tspy.model.ar.SKReg(
+        regressor_type='ridge',
         window=WINDOW,
         name=NAME
-    ).fit(X_train, y_train, num_epochs=NUM_EPOCHS)
+    ).fit(X_train, y_train)
 
     def test_predict(self):
         return self.assertIsInstance(self.reg(self.X_train), np.ndarray)
